@@ -133,14 +133,47 @@ class Hand:
         Similar to deck
     """
 
-    def __init__(self, hand: List[Card] = []) -> None:
+    def __init__(self, hand: List[Card] = None) -> None:
+        """ Creates a hand with any number of cards.
+
+        Parameters
+        ----------
+        hand: List[Card] = []
+            Defaults to empty hand.
+        """
         self.hand = hand
+        if self.hand is None:
+            self.hand = []
+
+    def deal_card(self, card: Card):
+        """ Deal card to hand.
+
+        Parameters
+        ----------
+        card: Card
+            Card to insert.
+        """
+        self.hand.append(card)
 
     def play_card(self, card_index: int) -> Card:
-        pass
+        """ Remove card from hand.
 
-    def get_hand(self) -> List[Card]:
-        pass
+        Parameters
+        ----------
+        card_index: int
+            Index of card in hand to play.
+        """
+        return self.hand.pop(card_index)
+
+    def get_card(self, card_index: int) -> Card:
+        """ Retrieve card at index.
+
+        Parameters
+        ----------
+        card_index: int
+            Index of card in hand.
+        """
+        return self.hand[card_index]
 
 if __name__ == "__main__":
     d = Deck()
