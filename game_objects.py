@@ -175,6 +175,16 @@ class Hand:
         """
         return self.hand[card_index]
 
+    def __str__(self) -> str:
+        """ Overloaded string function
+
+        Returns
+        -------
+        str
+            Object output as string.
+        """
+        return str([str(card) for card in self.hand])
+
 if __name__ == "__main__":
     d = Deck()
     for i in range(52):
