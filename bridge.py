@@ -17,6 +17,11 @@ def run_game():
 
 
     # Bid Sequence
+    current_contract, bid_winner = bid_sequence(players)
+    
+    print("The winning bid is {} from player {}".format(str(current_contract), bid_winner))
+
+def bid_sequence(players):
     contract = None
     pass_count = 0
     player_list = list(players.keys())
@@ -48,10 +53,11 @@ def run_game():
                 print("Invalid bid. Try again...")
                 continue
         if pass_count == 3:
+            winning_player = player_list[(player_list.index(current_player)+1) % len(player_list)]
             break
         current_player = player_list[(player_list.index(current_player)+1) % len(player_list)]
-    
-    print("The winning bid is {}".format(str(contract)))
+
+    return contract, winning_player
         
 
 if __name__ == "__main__":
