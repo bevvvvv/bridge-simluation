@@ -1,10 +1,26 @@
 """
 Bridge game simulation execution module.
 """
+from typing import Dict
 from game_objects import Deck, Hand
 from score import Contract
 
-def run_game():
+def run_game() -> None:
+    """ Run bridge game.
+    """
+    players = setup_game()
+    # TODO make actual game object to track total state
+    #print(players["North"])
+
+
+    # Bid Sequence
+    current_contract, bid_winner = bid_sequence(players)
+   
+    print("The winning bid is {} from player {}".format(str(current_contract), bid_winner))
+
+def setup_game() -> Dict[str, Hand]:
+    """ Setup a bridge game by dealing cards.
+    """
     d = Deck(shuffle=True)
     players = {"North": Hand(), "South": Hand(), "West": Hand(), "East": Hand()}
     for i in range(0, 52, 4):
@@ -12,16 +28,11 @@ def run_game():
         players["South"].deal_card(d.draw_card())
         players["West"].deal_card(d.draw_card())
         players["East"].deal_card(d.draw_card())
-    # TODO make actual game object to track total state
-    #print(players["North"])
+    return players
 
-
-    # Bid Sequence
-    current_contract, bid_winner = bid_sequence(players)
-    
-    print("The winning bid is {} from player {}".format(str(current_contract), bid_winner))
-
-def bid_sequence(players):
+def bid_sequence(players: Dict[str, Hand]):
+    """ Run the bidding sequence.
+    """
     contract = None
     pass_count = 0
     player_list = list(players.keys())
