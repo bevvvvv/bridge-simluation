@@ -1,7 +1,7 @@
 """
 Physical Game Object clases - Deck, Card, Hand
 """
-from typing import List
+from typing import List, Tuple, Union
 import random
 
 class Card:
@@ -185,11 +185,34 @@ class Hand:
         """
         return str([str(card) for card in self.hand])
 
-if __name__ == "__main__":
-    d = Deck()
-    for i in range(52):
-        print(d.draw_card())
-    print("Reset deck...")
-    d.reset(True)
-    for i in range(52):
-        print(d.draw_card())
+class Trick:
+    """ Represents a trick in play.
+    """
+
+    def __init__(self) -> None:
+        self.cards_played = []
+        self.suit = None
+
+    def play_card(self, card: Card, player: str) -> None:
+        """ Allow user to play card in suit
+        """
+        if self.suit is None:
+            self.suit = card.get_suit()
+        self.cards_played.append((card, player))
+
+    def get_winner(self, trump_suit: int) -> Union[Tuple[Card, str], None]:
+        """ If four cards have been played, the winning card and player is returned.
+        """
+        if len(self.cards_played) == 4:
+            winner, winning_player = self.cards_played[0]
+            higher = False
+            for card, player in self.cards_played:
+                if card.get_rank() > winner.get_rank():
+                    higher = True
+                if higher and card.get_suit() == winner.get_suit():
+                    winner = card
+                    winning_player = player
+                elif not higher and card.get_suit() == trump_suit and winner.get_suit() != trump_suit:
+                    winner = card
+                    winning_player = player
+            return winner, winning_player

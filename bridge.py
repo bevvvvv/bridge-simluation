@@ -1,22 +1,34 @@
 """
 Bridge game simulation execution module.
 """
-from typing import Dict
-from game_objects import Deck, Hand
+from typing import Dict, Tuple, List
+from random import seed, randint
+from game_objects import Deck, Hand, Trick
 from score import Contract
+
 
 def run_game() -> None:
     """ Run bridge game.
     """
     players = setup_game()
     # TODO make actual game object to track total state
-    #print(players["North"])
-
-
     # Bid Sequence
     current_contract, bid_winner = bid_sequence(players)
-   
     print("The winning bid is {} from player {}".format(str(current_contract), bid_winner))
+    
+    # play hands until cards run out
+    num_cards = 13
+    trick_results = []
+    while num_cards > 0:
+        current_trick = play_trick(players, "North", num_cards)
+        trick_results.append(current_trick)
+        winning_card, winning_player = current_trick.get_winner(current_contract.get_suit())
+        num_cards -= 1
+        print(winning_player, "wins the trick with", winning_card)
+    
+    ns_wins, ew_wins = calculate_result(trick_results, current_contract.get_suit())
+    print("North/South won {} tricks meeting the contract suit {} times.".format(ns_wins[0], ns_wins[1]))
+    print("East/West won {} tricks meeting the contract suit {} times.".format(ew_wins[0], ew_wins[1]))
 
 def setup_game() -> Dict[str, Hand]:
     """ Setup a bridge game by dealing cards.
@@ -30,7 +42,42 @@ def setup_game() -> Dict[str, Hand]:
         players["East"].deal_card(d.draw_card())
     return players
 
-def bid_sequence(players: Dict[str, Hand]):
+def play_trick(players: Dict[str, Hand], starting_player: str="North", num_cards: int = 13) -> Trick:
+    """ Plays a single trick using randomness.
+    """
+    trick = Trick()
+    player_list = list(players.keys())
+    current_player = player_list.index(starting_player)
+    for i in range(4):
+        player_name = player_list[current_player]
+        card_index = randint(0, num_cards-1)
+        card = players[player_name].play_card(card_index)
+        print(card, player_name)
+        trick.play_card(card, player_name)
+
+        current_player = (current_player+1) % len(player_list)
+    
+    return trick
+
+def calculate_result(trick_results: List[Trick], trump_suit: int):
+    ns_wins = (0, 0)
+    ew_wins = (0, 0)
+    for trick in trick_results:
+        winning_card, winning_player = trick.get_winner(trump_suit)
+        if winning_player == "North" or winning_player == "South":
+            if winning_card.get_suit() == trump_suit:
+                ns_wins = (ns_wins[0] + 1, ns_wins[1] +1)
+            else:
+                ns_wins = (ns_wins[0] + 1, ns_wins[1])
+        else:
+            if winning_card.get_suit() == trump_suit:
+                ew_wins = (ew_wins[0] + 1, ew_wins[1] +1)
+            else:
+                ew_wins = (ew_wins[0] + 1, ew_wins[1])
+    return (ns_wins, ew_wins)
+
+
+def bid_sequence(players: Dict[str, Hand]) -> Tuple[Contract, str]:
     """ Run the bidding sequence.
     """
     contract = None
