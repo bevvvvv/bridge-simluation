@@ -62,7 +62,117 @@ class Card:
             Suits coded as int -> (Clubs, Diamonds, Hearts, Spades)
         """
         return self.suit_list[(self.suit-1)]
-   
+
+    def get_image_name(self) -> str:
+        image_name = 'not found'
+        if self.suit == 1 and self.rank == 1:
+        	image_name = '2_of_clubs.png'
+        elif self.suit == 1 and self.rank == 2:
+        	image_name = '3_of_clubs.png'
+        elif self.suit == 1 and self.rank == 3:
+        	image_name = '4_of_clubs.png'
+        elif self.suit == 1 and self.rank == 4:
+        	image_name = '5_of_clubs.png'
+        elif self.suit == 1 and self.rank == 5:
+        	image_name = '6_of_clubs.png'
+        elif self.suit == 1 and self.rank == 6:
+        	image_name = '7_of_clubs.png'
+        elif self.suit == 1 and self.rank == 7:
+        	image_name = '8_of_clubs.png'
+        elif self.suit == 1 and self.rank == 8:
+        	image_name = '9_of_clubs.png'
+        elif self.suit == 1 and self.rank == 9:
+        	image_name = '10_of_clubs.png'
+        elif self.suit == 1 and self.rank == 10:
+        	image_name = '11_of_clubs.png'
+        elif self.suit == 1 and self.rank == 11:
+        	image_name = '12_of_clubs.png'
+        elif self.suit == 1 and self.rank == 12:
+        	image_name = '13_of_clubs.png'
+        elif self.suit == 1 and self.rank == 13:
+        	image_name = '14_of_clubs.png'
+        elif self.suit == 2 and self.rank == 1:
+        	image_name = '2_of_diamonds.png'
+        elif self.suit == 2 and self.rank == 2:
+        	image_name = '3_of_diamonds.png'
+        elif self.suit == 2 and self.rank == 3:
+        	image_name = '4_of_diamonds.png'
+        elif self.suit == 2 and self.rank == 4:
+        	image_name = '5_of_diamonds.png'
+        elif self.suit == 2 and self.rank == 5:
+        	image_name = '6_of_diamonds.png'
+        elif self.suit == 2 and self.rank == 6:
+        	image_name = '7_of_diamonds.png'
+        elif self.suit == 2 and self.rank == 7:
+        	image_name = '8_of_diamonds.png'
+        elif self.suit == 2 and self.rank == 8:
+        	image_name = '9_of_diamonds.png'
+        elif self.suit == 2 and self.rank == 9:
+        	image_name = '10_of_diamonds.png'
+        elif self.suit == 2 and self.rank == 10:
+        	image_name = '11_of_diamonds.png'
+        elif self.suit == 2 and self.rank == 11:
+        	image_name = '12_of_diamonds.png'
+        elif self.suit == 2 and self.rank == 12:
+        	image_name = '13_of_diamonds.png'
+        elif self.suit == 2 and self.rank == 13:
+        	image_name = '14_of_diamonds.png'
+        elif self.suit == 3 and self.rank == 1:
+        	image_name = '2_of_hearts.png'
+        elif self.suit == 3 and self.rank == 2:
+        	image_name = '3_of_hearts.png'
+        elif self.suit == 3 and self.rank == 3:
+        	image_name = '4_of_hearts.png'
+        elif self.suit == 3 and self.rank == 4:
+        	image_name = '5_of_hearts.png'
+        elif self.suit == 3 and self.rank == 5:
+        	image_name = '6_of_hearts.png'
+        elif self.suit == 3 and self.rank == 6:
+        	image_name = '7_of_hearts.png'
+        elif self.suit == 3 and self.rank == 7:
+        	image_name = '8_of_hearts.png'
+        elif self.suit == 3 and self.rank == 8:
+        	image_name = '9_of_hearts.png'
+        elif self.suit == 3 and self.rank == 9:
+        	image_name = '10_of_hearts.png'
+        elif self.suit == 3 and self.rank == 10:
+        	image_name = '11_of_hearts.png'
+        elif self.suit == 3 and self.rank == 11:
+        	image_name = '12_of_hearts.png'
+        elif self.suit == 3 and self.rank == 12:
+        	image_name = '13_of_hearts.png'
+        elif self.suit == 3 and self.rank == 13:
+        	image_name = '14_of_hearts.png'
+        elif self.suit == 4 and self.rank == 1:
+        	image_name = '2_of_spades.png'
+        elif self.suit == 4 and self.rank == 2:
+        	image_name = '3_of_spades.png'
+        elif self.suit == 4 and self.rank == 3:
+        	image_name = '4_of_spades.png'
+        elif self.suit == 4 and self.rank == 4:
+        	image_name = '5_of_spades.png'
+        elif self.suit == 4 and self.rank == 5:
+        	image_name = '6_of_spades.png'
+        elif self.suit == 4 and self.rank == 6:
+        	image_name = '7_of_spades.png'
+        elif self.suit == 4 and self.rank == 7:
+        	image_name = '8_of_spades.png'
+        elif self.suit == 4 and self.rank == 8:
+        	image_name = '9_of_spades.png'
+        elif self.suit == 4 and self.rank == 9:
+        	image_name = '10_of_spades.png'
+        elif self.suit == 4 and self.rank == 10:
+        	image_name = '11_of_spades.png'
+        elif self.suit == 4 and self.rank == 11:
+        	image_name = '12_of_spades.png'
+        elif self.suit == 4 and self.rank == 12:
+        	image_name = '13_of_spades.png'
+        elif self.suit == 4 and self.rank == 13:
+        	image_name = '14_of_spades.png'
+
+        return image_name
+
+
     def __str__(self) -> str:
         """ Overloaded string function
 
@@ -72,6 +182,9 @@ class Card:
             Object output as string.
         """
         return "Rank: {}, Suit: {}".format(self.get_rank(), self.get_suit_string())
+
+
+
 
 class Deck:
     """
@@ -116,7 +229,7 @@ class Deck:
         ----------
         shuffle: bool = False
             Whether to shuffle the deck.
-        """ 
+        """
         for suit in range(1, 5):
             for rank in range(1, 14):
                 self.deck.append(Card(rank, suit))
