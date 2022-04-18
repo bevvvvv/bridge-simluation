@@ -1,7 +1,7 @@
 """
 Physical Game Object clases - Deck, Card, Hand
 """
-from typing import List
+from typing import List, Tuple, Union
 import random
 
 class Card:
@@ -28,11 +28,11 @@ class Card:
         suit: int
             Suits coded as int -> (Clubs, Diamonds, Hearts, Spades)
         """
-        if rank not in range(1, 14) or suit not in range(1, 5):
+        if rank not in range(1, 14) or suit not in range(1, 6):
             raise ValueError("Improper int received for suit or rank.")
         self.rank = rank
         self.suit = suit
-        self.suit_list = ("Club", "Diamond", "Heart", "Spade")
+        self.suit_list = ("Club", "Diamond", "Heart", "Spade", "No Trump")
 
     def get_rank(self) -> int:
         """ Returns rank of card.
@@ -185,11 +185,133 @@ class Hand:
         """
         return str([str(card) for card in self.hand])
 
-if __name__ == "__main__":
-    d = Deck()
-    for i in range(52):
-        print(d.draw_card())
-    print("Reset deck...")
-    d.reset(True)
-    for i in range(52):
-        print(d.draw_card())
+class CardsInTrick:
+    """ Represents a trick in play.
+    """
+
+    def __init__(self) -> None:
+        self.cards_played = []
+        self.suit = None
+
+    def play_card(self, card: Card, player: str) -> None:
+        """ Allow user to play card in suit
+        """
+        if self.suit is None:
+            self.suit = card.get_suit()
+        self.cards_played.append((card, player))
+
+    def get_winner(self, trump_suit: int) -> Union[Tuple[Card, str], None]:
+        """ If four cards have been played, the winning card and player is returned.
+        """
+        if len(self.cards_played) == 4:
+            winner, winning_player = self.cards_played[0]
+            higher = False
+            for card, player in self.cards_played:
+                if card.get_rank() > winner.get_rank():
+                    higher = True
+                if higher and card.get_suit() == winner.get_suit():
+                    winner = card
+                    winning_player = player
+                elif not higher and card.get_suit() == trump_suit and winner.get_suit() != trump_suit:
+                    winner = card
+                    winning_player = player
+            return winner, winning_player
+
+class Trick:
+    """
+    Trick that stores details of a Trick.
+
+    Attributes
+    ----------
+    suit: int
+        Suits coded as int -> (Clubs, Diamonds, Hearts, Spades, NoTrump)
+    suit_list: Tuple
+        ("Club", "Diamond", "Heart", "Spade", "No Trump")
+    """
+
+    def __init__(self, suit: int) -> None:
+        """ A trick that has a winning suit
+
+        Parameters
+        ----------
+        suit: int
+            Suits coded as int -> (Clubs, Diamonds, Hearts, Spades, NoTrump)
+        """
+ 
+        self.suit = suit
+        self.suit_list = ("Club", "Diamond", "Heart", "Spade", "No Trump")
+
+    def get_suit(self) -> int:
+        """ Returns the winning suit.
+
+        Returns
+        -------
+        suit: int
+            Suits coded as int -> (Clubs, Diamonds, Hearts, Spades, NoTrump)
+        """
+        return self.suit
+
+    def get_suit_string(self) -> str:
+        """ Returns winning suit as text.
+
+        Returns
+        -------
+        suit: int
+            Suits coded as int -> (Clubs, Diamonds, Hearts, Spades, NoTrump)
+        """
+        return self.suit_list[(self.suit-1)]
+   
+    def __str__(self) -> str:
+        """ Overloaded string function
+
+        Returns
+        -------
+        str
+            Object output as string.
+        """
+        return "Suit: {}".format(self.get_suit_string())
+
+class Team:
+    """
+    Stores details of a team.
+
+    Attributes
+    ----------
+    name: str
+        can either be Contracting or Defending
+    players: List[Player]
+        contains 2 players
+    vulnerable: bool
+    """
+
+    def __init__(self, name: str, players: List, vulnerable: bool = False) -> None:
+        """ Creates a team with 2 players.
+
+        Parameters
+        ----------
+        vulnerable: bool = False
+            Whether thee team is vulnerable.
+        """
+        self.name = name
+        self.players = players
+        self.vulnerable = vulnerable
+
+
+    def get_name(self) -> str:
+        """ Returns the name of the team.
+
+        Returns
+        -------
+        name: str
+            name coded as str -> (Contracting, Defending)
+        """
+        return self.name
+    
+    def is_vulnerable(self) -> bool:
+        """ Returns if the team is in vulnerable status
+        
+        Returns
+        -------
+        vulnerable: bool
+        """
+        return self.vulnerable
