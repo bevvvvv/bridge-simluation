@@ -165,14 +165,11 @@ def bid_sequence(players: Dict[str, Hand]) -> Tuple[Contract, str]:
         
         pass_chance = randint(0, 2)
         double_chance = randint(0, 4)
-        suit = None
-        rank = None
-        if contract is None:
-            suit = randint(1, 6)
-            rank = randint(1, 14)
-        else:
-            suit = randint(contract.get_suit(), 6)
-            rank = randint(contract.get_rank(), 14)
+        suit = randint(1, 6)
+        rank = randint(1, 14)
+        if contract is not None:
+            if suit <= contract.get_suit() and rank <= contract.get_rank():
+                pass_chance = 1
         # decision switch
         if pass_chance == 1:
             pass_count += 1
