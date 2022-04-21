@@ -163,12 +163,20 @@ def bid_sequence(players: Dict[str, Hand]) -> Tuple[Contract, str]:
         print('HAND STRENGTH INDEX: ', Eval_index)    
         #END PC/LC RATING
         
-        
-        action = input("What should {} bid?".format(current_player))
+        pass_chance = randint(0, 2)
+        double_chance = randint(0, 4)
+        suit = None
+        rank = None
+        if contract is None:
+            suit = randint(1, 6)
+            rank = randint(1, 14)
+        else:
+            suit = randint(contract.get_suit(), 6)
+            rank = randint(contract.get_rank(), 14)
         # decision switch
-        if action.lower() == "pass":
+        if pass_chance == 1:
             pass_count += 1
-        elif action.lower() == "double":
+        elif double_chance == 1:
             pass_count = 0
             try:
                 contract.double()
@@ -177,8 +185,6 @@ def bid_sequence(players: Dict[str, Hand]) -> Tuple[Contract, str]:
                 continue
         else:
             pass_count = 0
-            bid = [int(x.strip()) for x in action.split(",")]
-            rank, suit = tuple(bid)
             try:
                 if contract is None:
                     contract = Contract(rank, suit)
