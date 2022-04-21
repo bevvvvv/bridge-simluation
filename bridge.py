@@ -13,11 +13,13 @@ from score import Contract, ScoreBoard
 def run_game() -> None:
     """ Run bridge game.
     """
-    players = setup_game()
     ns_vuln = False
-    eq_vuln = False
+    ew_vuln = False
+    ns_score = [0, 0] # game, match
+    ew_score = [0, 0] # game, match
 
     while True:
+        players = setup_game()
 
         # TODO make actual game object to track total state
         # Bid Sequence
@@ -28,9 +30,9 @@ def run_game() -> None:
         ns_team_name = "Defending"
         ew_team_name = "Contracting"
         if bid_winner is "North" or bid_winner is "South":
-            ns_team_name = "Defending"
-            ew_team_name = "Contracting"
-        testTeams = [Team(ns_team_name, ["North", "South"], True), Team(ew_team_name, ["West", "East"], False)]
+            ns_team_name = "Contracting"
+            ew_team_name = "Defending"
+        testTeams = [Team(ns_team_name, ["North", "South"], ns_vuln), Team(ew_team_name, ["West", "East"], ew_vuln)]
         
         scoreboard = ScoreBoard(current_contract, testTeams)
         
@@ -54,9 +56,31 @@ def run_game() -> None:
         print("East/West won {} tricks meeting the contract suit {} times.".format(ew_wins[0], ew_wins[1]))
 
         scoreboard.score_at_end_of_round()
-        
-        print(scoreboard)
-        break
+
+        # check if game is over
+        ns_score[0] += scoreboard.teamScoreMap[ns_team_name]
+        ew_score[0] += scoreboard.teamScoreMap[ew_team_name]
+
+        if ns_score[0] >= 100 or ew_score[0] >= 100:
+            # tally score
+            ns_score[1] += ns_score[0]
+            ew_score[1] += ew_score[0]
+            if ns_score[0] > ew_score[0]:
+                print('NS Wins')
+                if ns_vuln:
+                    break
+                else:
+                    ns_vuln = True
+            else:
+                print('EW Wins')
+                if ew_vuln:
+                    break
+                else:
+                    ew_vuln = True
+            ns_score[0] = 0
+            ew_score[0] = 0
+    print(ns_score[1])
+    print(ew_score[1])
 
 def setup_game() -> Dict[str, Hand]:
     """ Setup a bridge game by dealing cards.
