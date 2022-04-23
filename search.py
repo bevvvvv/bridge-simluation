@@ -1,7 +1,30 @@
 """Minmax search
 """
-from typing import Tuple
+from typing import Tuple, List
 from treelib import Node, Tree
+
+from game_objects import CardsInTrick, Hand, Deck
+
+def build_trick_tree(current_played: CardsInTrick, dummy_position: int, dummy_hand: Hand, player_hand: Hand, played_cards: List[CardsInTrick]) -> Tree:
+    """current_played gives the current game state and dummy_position is
+    relative to the current player with a -1 value meaning already played.
+    """
+    levels_past_root = 4 - len(current_played.cards_played)
+    num_hidden_hands = levels_past_root-1 if dummy_position > -1 else levels_past_root
+    # dummy or not -> uknown depends on # of levels to expand -> dummy_position > -1; levels_past_root-1
+    unknown_cards = Deck()
+    for card in player_hand.hand: # we known what player has
+        unknown_cards.remove_card(card)
+    for card in dummy_hand.hand: # we know what dummy has
+        unknown_cards.remove_card(card)
+    for card, player in current_played.cards_played: # we know what has been played
+        unknown_cards.remove_card(card)
+    for trick in played_cards: # we have good memory
+        for card, player in trick.cards_played:
+            unknown_cards.remove_card(card)
+
+    print(len(unknown_cards.deck))
+    pass
 
 
 def decide(tree: Tree):

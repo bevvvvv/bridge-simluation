@@ -8,6 +8,7 @@ from typing import Dict, Tuple, List
 from random import seed, randint
 from game_objects import Deck, Hand, CardsInTrick, Team, Trick
 from score import Contract, ScoreBoard
+from search import build_trick_tree
 
 
 def run_game() -> None:
@@ -29,9 +30,16 @@ def run_game() -> None:
         # setup scoreboard 
         ns_team_name = "Defending"
         ew_team_name = "Contracting"
+        dummy = "East"
         if bid_winner is "North" or bid_winner is "South":
             ns_team_name = "Contracting"
             ew_team_name = "Defending"
+            if bid_winner is "South":
+                dummy = "North"
+            else:
+                dummy = "South"
+        else:
+            dummy = "West"
         testTeams = [Team(ns_team_name, ["North", "South"], ns_vuln), Team(ew_team_name, ["West", "East"], ew_vuln)]
         
         scoreboard = ScoreBoard(current_contract, testTeams)
@@ -39,8 +47,9 @@ def run_game() -> None:
         # play hands until cards run out
         num_cards = 13
         trick_results = []
+        winning_player = bid_winner
         while num_cards > 0:
-            current_trick = play_trick(players, "North", num_cards)
+            current_trick = play_trick(players, winning_player, num_cards, trick_results, dummy)
             trick_results.append(current_trick)
             winning_card, winning_player = current_trick.get_winner(current_contract.get_suit())
             num_cards -= 1
@@ -94,14 +103,19 @@ def setup_game() -> Dict[str, Hand]:
         players["East"].deal_card(d.draw_card())
     return players
 
-def play_trick(players: Dict[str, Hand], starting_player: str="North", num_cards: int = 13) -> CardsInTrick:
+def play_trick(players: Dict[str, Hand], starting_player: str="North", num_cards: int = 13, prev_tricks: List[CardsInTrick] = [], dummy: str="South") -> CardsInTrick:
     """ Plays a single trick using randomness.
     """
     trick = CardsInTrick()
     player_list = list(players.keys())
     current_player = player_list.index(starting_player)
+    dummy_ind = player_list.index(dummy)
     for i in range(4):
         player_name = player_list[current_player]
+
+        dummy_position = dummy_ind - i
+        build_trick_tree(trick, dummy_position, players[dummy], players[player_name], prev_tricks)
+
         card_index = randint(0, num_cards-1)
         card = players[player_name].play_card(card_index)
         print(card, player_name)

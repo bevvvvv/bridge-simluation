@@ -103,6 +103,15 @@ class Deck:
             Card drawn from the deck.
         """
         return self.deck.pop(0)
+    
+    def remove_card(self, card: Card) -> Union[Card, None]:
+        """ Remove specificed card from deck if exists
+        """
+        rank = card.get_rank()
+        suit = card.get_suit()
+        for indx, card in enumerate(self.deck):
+            if card.get_rank() == rank and card.get_suit() == suit:
+                return self.deck.pop(indx)
 
     def shuffle_deck(self) -> None:
         """ Shuffle cards in the deck.
