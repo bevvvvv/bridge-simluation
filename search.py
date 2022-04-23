@@ -29,11 +29,12 @@ def build_trick_tree(current_played: CardsInTrick, dummy_position: int, dummy_ha
     trick_tree.create_node("root", "root")
 
     for level in range(0, levels_past_root):
+        print(trick_tree)
         all_nodes = trick_tree.nodes
         prev_level_nodes = []
         for node in all_nodes.keys():
             if trick_tree.depth(all_nodes[node]) == level:
-                prev_level_nodes.append(all_nodes[node])
+                prev_level_nodes.append(node)
 
         count = 0
         if level == dummy_position:
