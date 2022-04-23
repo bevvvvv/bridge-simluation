@@ -10,7 +10,6 @@ def build_trick_tree(current_played: CardsInTrick, dummy_position: int, dummy_ha
     relative to the current player with a -1 value meaning already played.
     """
     levels_past_root = 4 - len(current_played.cards_played)
-    num_hidden_hands = levels_past_root-1 if dummy_position > -1 else levels_past_root
     # dummy or not -> uknown depends on # of levels to expand -> dummy_position > -1; levels_past_root-1
     unknown_cards = Deck()
     for card in player_hand.hand: # we known what player has
@@ -24,7 +23,34 @@ def build_trick_tree(current_played: CardsInTrick, dummy_position: int, dummy_ha
             unknown_cards.remove_card(card)
 
     print(len(unknown_cards.deck))
-    pass
+    trick_tree = Tree()
+    # tag is rank_suit
+    # identifier is index_level
+    trick_tree.create_node("root", "root")
+
+    for level in range(0, levels_past_root):
+        all_nodes = trick_tree.nodes
+        prev_level_nodes = []
+        for node in all_nodes.keys():
+            if trick_tree.depth(all_nodes[node]) == level:
+                prev_level_nodes.append(all_nodes[node])
+
+        count = 0
+        if level == dummy_position:
+            for node in prev_level_nodes:
+                for card in dummy_hand.hand:
+                    tag = str(card.get_rank()) + "_" + str(card.get_suit())
+                    identifier = str(count) + "_" + str(level)
+                    trick_tree.create_node(tag, identifier, parent=node)
+                    count += 1
+        else:
+            for node in prev_level_nodes:
+                for card in unknown_cards.deck:
+                    tag = str(card.get_rank()) + "_" + str(card.get_suit())
+                    identifier = str(count) + "_" + str(level)
+                    trick_tree.create_node(tag, identifier, parent=node)
+                    count += 1
+    return trick_tree
 
 
 def decide(tree: Tree):
@@ -65,7 +91,7 @@ def decide(tree: Tree):
 def create_tree() -> Tree:
     tree = Tree()
     # store trick state in data
-    tree.create_node("Root", "root", data={})
+    tree.create_node("Root", "root")
     tree.create_node("One", "one", parent="root")
     tree.create_node("Two", "two", parent="root")
     tree.create_node("Leaf One", "leaf_one", parent="one", data=1)

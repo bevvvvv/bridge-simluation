@@ -114,7 +114,10 @@ def play_trick(players: Dict[str, Hand], starting_player: str="North", num_cards
         player_name = player_list[current_player]
 
         dummy_position = dummy_ind - i
-        build_trick_tree(trick, dummy_position, players[dummy], players[player_name], prev_tricks)
+        tree = build_trick_tree(trick, dummy_position, players[dummy], players[player_name], prev_tricks)
+        import pdb
+        pdb.set_trace()
+
 
         card_index = randint(0, num_cards-1)
         card = players[player_name].play_card(card_index)
