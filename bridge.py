@@ -5,7 +5,7 @@ from game_objects import Deck, Hand
 from score import Contract
 import numpy as np
 from typing import Dict, Tuple, List
-from random import seed, randint
+from random import seed, randint, sample
 from game_objects import Deck, Hand, CardsInTrick, Team, Trick
 from score import Contract, ScoreBoard
 from search import build_trick_tree, decide
@@ -129,7 +129,13 @@ def play_trick(players: Dict[str, Hand], starting_player: str="North", num_cards
                     card_index = idx
             card = players[player_name].play_card(card_index)
         else:
-            card_index = randint(0, num_cards-1)
+            # get legal plays
+            legal_indices = range(0, num_cards)
+            if i > 0:
+                legal_indices = [i for i in range(0, num_cards) if players[player_name].get_card(i).get_suit() == trick.cards_played[0][0].get_suit()]
+            if len(legal_indices) == 0:
+                legal_indices = range(0, num_cards)
+            card_index = sample(legal_indices, 1)[0]
             card = players[player_name].play_card(card_index)
         print(card, player_name)
         trick.play_card(card, player_name)
