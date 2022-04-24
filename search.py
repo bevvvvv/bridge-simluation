@@ -1,14 +1,16 @@
 """Minmax search
 """
 from typing import Tuple, List
+from copy import deepcopy
 from treelib import Node, Tree
 
-from game_objects import CardsInTrick, Hand, Deck
+from game_objects import CardsInTrick, Hand, Deck, Card
 
-def build_trick_tree(current_played: CardsInTrick, dummy_position: int, dummy_hand: Hand, player_hand: Hand, played_cards: List[CardsInTrick]) -> Tree:
+def build_trick_tree(current_played: CardsInTrick, dummy_position: int, dummy_hand: Hand, player_hand: Hand, played_cards: List[CardsInTrick], trump_suit) -> Tree:
     """current_played gives the current game state and dummy_position is
     relative to the current player with a -1 value meaning already played.
     """
+    print('Building search tree.')
     levels_past_root = 4 - len(current_played.cards_played)
     # dummy or not -> uknown depends on # of levels to expand -> dummy_position > -1; levels_past_root-1
     unknown_cards = Deck()
@@ -22,14 +24,12 @@ def build_trick_tree(current_played: CardsInTrick, dummy_position: int, dummy_ha
         for card, player in trick.cards_played:
             unknown_cards.remove_card(card)
 
-    print(len(unknown_cards.deck))
     trick_tree = Tree()
     # tag is rank_suit
     # identifier is index_level
     trick_tree.create_node("root", "root")
 
     for level in range(0, levels_past_root):
-        print(trick_tree)
         all_nodes = trick_tree.nodes
         prev_level_nodes = []
         for node in all_nodes.keys():
@@ -37,57 +37,88 @@ def build_trick_tree(current_played: CardsInTrick, dummy_position: int, dummy_ha
                 prev_level_nodes.append(node)
 
         count = 0
+        next_level_options = unknown_cards.deck
         if level == dummy_position:
-            for node in prev_level_nodes:
-                for card in dummy_hand.hand:
-                    tag = str(card.get_rank()) + "_" + str(card.get_suit())
-                    identifier = str(count) + "_" + str(level)
-                    trick_tree.create_node(tag, identifier, parent=node)
-                    count += 1
-        else:
-            for node in prev_level_nodes:
-                for card in unknown_cards.deck:
-                    tag = str(card.get_rank()) + "_" + str(card.get_suit())
-                    identifier = str(count) + "_" + str(level)
-                    trick_tree.create_node(tag, identifier, parent=node)
-                    count += 1
+            next_level_options = dummy_hand.hand
+        elif level == 0:
+            next_level_options = player_hand.hand
+
+        for node in prev_level_nodes:
+            for card in next_level_options:
+                tag = str(card.get_rank()) + "_" + str(card.get_suit())
+                identifier = str(count) + "_" + str(level)
+                trick_tree.create_node(tag, identifier, parent=node)
+
+                if level == levels_past_root-1:
+                    # calculate payoff
+
+                    # compile trick
+                    branch_trick = deepcopy(current_played)
+                    player_name = 'player'
+                    curr_node = trick_tree.get_node(identifier)
+                    for branch_level in range(0, levels_past_root):
+                        rank, suit = curr_node.tag.split('_')
+                        if branch_level > 0:
+                            player_name = 'other'
+                        branch_trick.play_card(Card(int(rank), int(suit)), player_name)
+
+                        curr_node = trick_tree.get_node(curr_node.predecessor(trick_tree.identifier))
+
+                    # determine winner
+                    card, winner = branch_trick.get_winner(trump_suit)
+
+                    # if winner non-root -> negative rank value
+                    payoff = -1 * card.get_rank()
+                    if card.get_suit() == trump_suit:
+                        payoff *= 2
+
+                    # if winner root -> positive 1/rank
+                    if winner == 'player':
+                        payoff = 1 / card.get_rank()
+                        if card.get_suit() == trump_suit:
+                            payoff *= 2
+
+                    trick_tree.remove_node(identifier)
+                    trick_tree.create_node(tag, identifier, parent=node, data=payoff)
+
+                count += 1
     return trick_tree
 
 
 def decide(tree: Tree):
-
+    print('Finding optimal play.')
     while True:
         leaves = tree.leaves()
         if tree.depth() == 1:
             for leaf in leaves:
                 choice_payoff = leaf.data
-                choice_id = leaf.identifier
+                choice_tag = leaf.tag
 
                 if leaf.data > choice_payoff:
                     choice_payoff = leaf.data
-                    choice_id = leaf.identifier
+                    choice_tag = leaf.tag
             
-            return choice_payoff, choice_id
+            return choice_payoff, choice_tag
 
         else:
             for leaf in leaves:
                 siblings = tree.siblings(leaf.identifier)
                 choice_payoff = leaf.data
-                choice_id = leaf.identifier
-                tree.get_node(tree.ancestor(leaf.identifier)).data = choice_payoff
+                choice_tag = leaf.tag
+                tree.parent(leaf.identifier).data = choice_payoff
 
                 for child in siblings:
                     if child.data < choice_payoff:
                         choice_payoff = child.data
-                        choice_id = child.identifier
-                        tree.get_node(tree.ancestor(leaf.identifier)).data = choice_payoff
+                        choice_tag = child.identifier
+                        tree.parent(leaf.identifier).data = choice_payoff
                     
                     tree.remove_node(child.identifier)
                     leaves.remove(child)
 
                 tree.remove_node(leaf.identifier)
 
-    return choice_payoff, choice_id
+    return choice_payoff, choice_tag
 
 def create_tree() -> Tree:
     tree = Tree()

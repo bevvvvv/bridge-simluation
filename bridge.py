@@ -8,7 +8,7 @@ from typing import Dict, Tuple, List
 from random import seed, randint
 from game_objects import Deck, Hand, CardsInTrick, Team, Trick
 from score import Contract, ScoreBoard
-from search import build_trick_tree
+from search import build_trick_tree, decide
 
 
 def run_game() -> None:
@@ -49,7 +49,7 @@ def run_game() -> None:
         trick_results = []
         winning_player = bid_winner
         while num_cards > 0:
-            current_trick = play_trick(players, winning_player, num_cards, trick_results, dummy)
+            current_trick = play_trick(players, winning_player, num_cards, trick_results, dummy, current_contract.get_suit())
             trick_results.append(current_trick)
             winning_card, winning_player = current_trick.get_winner(current_contract.get_suit())
             num_cards -= 1
@@ -103,7 +103,7 @@ def setup_game() -> Dict[str, Hand]:
         players["East"].deal_card(d.draw_card())
     return players
 
-def play_trick(players: Dict[str, Hand], starting_player: str="North", num_cards: int = 13, prev_tricks: List[CardsInTrick] = [], dummy: str="South") -> CardsInTrick:
+def play_trick(players: Dict[str, Hand], starting_player: str="North", num_cards: int = 13, prev_tricks: List[CardsInTrick] = [], dummy: str="South", trump_suit: int=5) -> CardsInTrick:
     """ Plays a single trick using randomness.
     """
     trick = CardsInTrick()
@@ -114,13 +114,22 @@ def play_trick(players: Dict[str, Hand], starting_player: str="North", num_cards
         player_name = player_list[current_player]
 
         dummy_position = dummy_ind - i
-        tree = build_trick_tree(trick, dummy_position, players[dummy], players[player_name], prev_tricks)
-        import pdb
-        pdb.set_trace()
-
-
-        card_index = randint(0, num_cards-1)
-        card = players[player_name].play_card(card_index)
+        
+        card = None
+        if player_name == 'North':
+            tree = build_trick_tree(trick, dummy_position, players[dummy], players[player_name], prev_tricks, trump_suit)
+            choice_payoff, choice_tag = decide(tree)
+            print('North\'s best move is {} with a payoff of {}'.format(choice_tag, choice_payoff))
+            rank, suit = choice_tag.split('_')
+            card_index = None
+            for idx in range(0, num_cards):
+                sample_card = players[player_name].get_card(idx)
+                if sample_card.get_rank() == int(rank) and sample_card.get_suit() == int(suit):
+                    card_index = idx
+            card = players[player_name].play_card(card_index)
+        else:
+            card_index = randint(0, num_cards-1)
+            card = players[player_name].play_card(card_index)
         print(card, player_name)
         trick.play_card(card, player_name)
 
@@ -265,5 +274,4 @@ def test_scorecard():
     print(scoreboard)
 
 if __name__ == "__main__":
-
     run_game()
