@@ -49,6 +49,7 @@ def run_game() -> None:
         trick_results = []
         winning_player = bid_winner
         while num_cards > 0:
+            # TODO enforce play of trump
             current_trick = play_trick(players, winning_player, num_cards, trick_results, dummy, current_contract.get_suit())
             trick_results.append(current_trick)
             winning_card, winning_player = current_trick.get_winner(current_contract.get_suit())

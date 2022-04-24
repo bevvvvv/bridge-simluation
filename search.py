@@ -38,10 +38,22 @@ def build_trick_tree(current_played: CardsInTrick, dummy_position: int, dummy_ha
 
         count = 0
         next_level_options = unknown_cards.deck
+        unknown = True
         if level == dummy_position:
             next_level_options = dummy_hand.hand
+            unknown = False
         elif level == 0:
             next_level_options = player_hand.hand
+            unknown = False
+        if not unknown and len(current_played.cards_played) > 0:
+            # remove unplayable cards
+            has_current = False
+            for card in next_level_options:
+                if card.get_suit() == current_played.cards_played[0][0].get_suit():
+                    has_current = True
+                    break
+            if has_current:
+                next_level_options = [c for c in next_level_options if c.get_suit() == current_played.cards_played[0][0].get_suit()]
 
         for node in prev_level_nodes:
             for card in next_level_options:
@@ -51,8 +63,6 @@ def build_trick_tree(current_played: CardsInTrick, dummy_position: int, dummy_ha
 
                 if level == levels_past_root-1:
                     # calculate payoff
-                    # TODO THIS IS BUGGED
-
                     # compile trick
                     branch_trick = deepcopy(current_played)
                     player_name = 'other'
@@ -72,7 +82,6 @@ def build_trick_tree(current_played: CardsInTrick, dummy_position: int, dummy_ha
                     root_rank, root_suit = curr_node.tag.split('_')
 
                     # if winner non-root -> negative rank value OF root's card
-                    # TODO swap to be root's card, not winner
                     payoff = -1 * int(root_rank)
                     if int(root_suit) == trump_suit:
                         payoff *= 2
@@ -122,8 +131,6 @@ def decide(tree: Tree):
                     leaves.remove(child)
 
                 tree.remove_node(leaf.identifier)
-
-    return choice_payoff, choice_tag
 
 def create_tree() -> Tree:
     tree = Tree()
