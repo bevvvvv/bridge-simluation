@@ -51,25 +51,30 @@ def build_trick_tree(current_played: CardsInTrick, dummy_position: int, dummy_ha
 
                 if level == levels_past_root-1:
                     # calculate payoff
+                    # TODO THIS IS BUGGED
 
                     # compile trick
                     branch_trick = deepcopy(current_played)
-                    player_name = 'player'
+                    player_name = 'other'
                     curr_node = trick_tree.get_node(identifier)
                     for branch_level in range(0, levels_past_root):
                         rank, suit = curr_node.tag.split('_')
-                        if branch_level > 0:
-                            player_name = 'other'
+                        if branch_level == levels_past_root-1:
+                            # we traverse toward root, last palyed is root
+                            player_name = 'player'
                         branch_trick.play_card(Card(int(rank), int(suit)), player_name)
 
-                        curr_node = trick_tree.get_node(curr_node.predecessor(trick_tree.identifier))
+                        if branch_level < levels_past_root-1:
+                            curr_node = trick_tree.get_node(curr_node.predecessor(trick_tree.identifier))
 
                     # determine winner
                     card, winner = branch_trick.get_winner(trump_suit)
+                    root_rank, root_suit = curr_node.tag.split('_')
 
-                    # if winner non-root -> negative rank value
-                    payoff = -1 * card.get_rank()
-                    if card.get_suit() == trump_suit:
+                    # if winner non-root -> negative rank value OF root's card
+                    # TODO swap to be root's card, not winner
+                    payoff = -1 * int(root_rank)
+                    if int(root_suit) == trump_suit:
                         payoff *= 2
 
                     # if winner root -> positive 1/rank

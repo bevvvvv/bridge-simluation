@@ -214,8 +214,8 @@ class CardsInTrick:
         """
         if len(self.cards_played) == 4:
             winner, winning_player = self.cards_played[0]
-            higher = False
             for card, player in self.cards_played:
+                higher = False
                 if card.get_rank() > winner.get_rank():
                     higher = True
                 if higher and card.get_suit() == winner.get_suit():

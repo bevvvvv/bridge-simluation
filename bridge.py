@@ -113,7 +113,7 @@ def play_trick(players: Dict[str, Hand], starting_player: str="North", num_cards
     for i in range(4):
         player_name = player_list[current_player]
 
-        dummy_position = dummy_ind - i
+        dummy_position = dummy_ind - current_player
         
         card = None
         if player_name == 'North':
